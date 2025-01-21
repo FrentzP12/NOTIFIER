@@ -59,7 +59,9 @@ def send_email(subject, table_rows, recipients):
     </style>
     </head>
     <body>
-    <p>Resultados de la consulta:</p>
+    <p>Nuevas entradas ingresadas para el día DD/MM/YY</p>
+    <br>
+    <p>Para información más precisa, revisar la página https://seacetlcom-production.up.railway.app <p>
     <table>
         <tr>
             <th>Comprador</th>
