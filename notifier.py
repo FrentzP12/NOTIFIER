@@ -57,7 +57,7 @@ async def main():
         for item in items:
             body += f"Comprador: {item['comprador']}, Item: {item['item']}, Fecha: {item['fecha_ingreso']}\n"
         send_email(
-            subject=f"Contrataciones del {fecha_actual}",
+            subject=f"Contrataciones del {fecha_inicio}",
             body=body,
             recipients=["frentz233@gmail.com"]
         )
