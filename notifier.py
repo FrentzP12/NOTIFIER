@@ -3,7 +3,7 @@ import asyncpg
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timedelta
 
 async def fetch_items_by_date(fecha_inicio, fecha_fin):
     dsn = os.getenv("DB_DSN")
