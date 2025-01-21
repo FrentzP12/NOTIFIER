@@ -25,18 +25,58 @@ async def fetch_items_by_date(fecha_inicio, fecha_fin):
         print(f"Error fetching data: {e}")
         return []
 
-def send_email(subject, body, recipients):
+def generate_table_rows(items):
+    table_rows = ""
+    for item in items:
+        table_rows += f"<tr><td>{item['comprador']}</td><td>{item['item']}</td><td>{item['fecha_ingreso']}</td></tr>"
+    return table_rows
+
+def send_email(subject, table_rows, recipients):
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASSWORD")
     
-    smtp_server = "smtp.gmail.com"  # Cambia esto a tu servidor SMTP
-    smtp_port = 587  # Cambia esto al puerto SMTP adecuado
+    smtp_server = "smtp.gmail.com"  # Cambia esto si usas otro proveedor
+    smtp_port = 587  # Puerto SMTP estándar para TLS
+
+    # Crear el cuerpo del correo con formato HTML
+    body = f"""
+    <html>
+    <head>
+    <style>
+        table {{
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }}
+        th, td {{
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }}
+        th {{
+            background-color: #f2f2f2;
+        }}
+    </style>
+    </head>
+    <body>
+    <p>Resultados de la consulta:</p>
+    <table>
+        <tr>
+            <th>Comprador</th>
+            <th>Item</th>
+            <th>Fecha de Ingreso</th>
+        </tr>
+        {table_rows}
+    </table>
+    </body>
+    </html>
+    """
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = ", ".join(recipients)
     msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
+    msg.attach(MIMEText(body, 'html'))
 
     try:
         with smtplib.SMTP(smtp_server, smtp_port) as server:
@@ -53,12 +93,10 @@ async def main():
     items = await fetch_items_by_date(fecha_inicio, fecha_fin)
 
     if items:
-        body = "Resultados de la consulta:\n\n"
-        for item in items:
-            body += f"Comprador: {item['comprador']}, Item: {item['item']}, Fecha: {item['fecha_ingreso']}\n"
+        table_rows = generate_table_rows(items)
         send_email(
             subject=f"Contrataciones del {fecha_inicio}",
-            body=body,
+            table_rows=table_rows,
             recipients=["frentz233@gmail.com"]
         )
     else:
