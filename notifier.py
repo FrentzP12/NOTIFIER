@@ -29,7 +29,7 @@ def send_email(subject, body, recipients):
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASSWORD")
     
-    smtp_server = "smtp.example.com"  # Cambia esto a tu servidor SMTP
+    smtp_server = "smtp.gmail.com"  # Cambia esto a tu servidor SMTP
     smtp_port = 587  # Cambia esto al puerto SMTP adecuado
 
     msg = MIMEMultipart()
@@ -48,7 +48,7 @@ def send_email(subject, body, recipients):
         print(f"Error enviando correo: {e}")
 
 async def main():
-    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+    fecha_actual = datetime.strptime('2025-01-17', '%Y-%m-%d').date()  # Fecha fija #fecha_actual = datetime.now().strftime('%Y-%m-%d')
     items = await fetch_items_by_date(fecha_actual)
 
     if items:
@@ -58,7 +58,7 @@ async def main():
         send_email(
             subject=f"Contrataciones del {fecha_actual}",
             body=body,
-            recipients=["recipient1@example.com", "recipient2@example.com"]
+            recipients=["frentz233@gmail.com"]
         )
     else:
         print("No se encontraron resultados para la fecha indicada.")
