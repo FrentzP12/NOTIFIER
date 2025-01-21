@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-async def fetch_items_by_date(fecha):
+async def fetch_items_by_date(fecha_inicio, fecha_fin):
     dsn = os.getenv("DB_DSN")
     query = """
     SELECT * FROM buscar_items_multi_criterio(
@@ -13,12 +13,12 @@ async def fetch_items_by_date(fecha):
         NULL,
         NULL,
         $1,
-        $1
+        $2
     );
     """
     try:
         conn = await asyncpg.connect(dsn)
-        rows = await conn.fetch(query, fecha)
+        rows = await conn.fetch(query, fecha_inicio, fecha_fin)
         await conn.close()
         return rows
     except Exception as e:
@@ -48,8 +48,9 @@ def send_email(subject, body, recipients):
         print(f"Error enviando correo: {e}")
 
 async def main():
-    fecha_actual = datetime.strptime('2025-01-17', '%Y-%m-%d').date()  # Fecha fija #fecha_actual = datetime.now().strftime('%Y-%m-%d')
-    items = await fetch_items_by_date(fecha_actual)
+    fecha_inicio = datetime.strptime('2025-01-17', '%Y-%m-%d').date()
+    fecha_fin = fecha_inicio + timedelta(days=1)  # Día siguiente para cubrir todo el día 17
+    items = await fetch_items_by_date(fecha_inicio, fecha_fin)
 
     if items:
         body = "Resultados de la consulta:\n\n"
