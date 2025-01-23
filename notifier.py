@@ -150,7 +150,7 @@ async def main():
     if items:
         table_rows = generate_table_rows(items)
         send_email(
-            subject=f"Contrataciones relacionadas con tecnología y otros (últimos 15 días)",
+            subject=f"Contrataciones relacionadas con telecomunicaciones y otros (últimos 15 días)",
             table_rows=table_rows,
             recipients=["frentz233@gmail.com"],
             fecha_inicio=fecha_inicio,
