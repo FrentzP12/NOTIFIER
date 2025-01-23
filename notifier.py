@@ -5,9 +5,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 
-async def fetch_items(fecha_inicio, fecha_fin, palabras_clave):
+async def fetch_items_por_palabra_clave(fecha_inicio, fecha_fin, palabra_clave):
     """
-    Realiza una consulta a la base de datos filtrando por fechas y palabras clave.
+    Realiza una consulta a la base de datos filtrando por una palabra clave específica.
     """
     dsn = os.getenv("DB_DSN")
     query = """
@@ -22,16 +22,24 @@ async def fetch_items(fecha_inicio, fecha_fin, palabras_clave):
     try:
         conn = await asyncpg.connect(dsn)
         
-        # Concatenamos las palabras clave en un solo patrón con el operador |
-        palabras_clave_filtro = '|'.join(palabras_clave)
-        
-        # Ejecutamos la consulta
-        rows = await conn.fetch(query, palabras_clave_filtro, fecha_inicio, fecha_fin)
+        # Ejecutamos la consulta con una sola palabra clave
+        rows = await conn.fetch(query, palabra_clave, fecha_inicio, fecha_fin)
         await conn.close()
         return rows
     except Exception as e:
-        print(f"Error fetching data: {e}")
+        print(f"Error fetching data for '{palabra_clave}': {e}")
         return []
+
+async def fetch_all_items(fecha_inicio, fecha_fin, palabras_clave):
+    """
+    Itera sobre las palabras clave y obtiene los resultados de cada una.
+    """
+    all_items = []
+    for palabra_clave in palabras_clave:
+        print(f"Buscando por palabra clave: {palabra_clave}")
+        items = await fetch_items_por_palabra_clave(fecha_inicio, fecha_fin, palabra_clave)
+        all_items.extend(items)  # Combina los resultados de todas las consultas
+    return all_items
 
 def generate_table_rows(items):
     """
@@ -115,8 +123,8 @@ async def main():
         "DVB", "FM", "TV", "VHF", "agua"  # Incluye palabras clave adicionales
     ]
 
-    # Realiza la consulta
-    items = await fetch_items(fecha_inicio, fecha_fin, palabras_clave)
+    # Realiza la consulta para todas las palabras clave
+    items = await fetch_all_items(fecha_inicio, fecha_fin, palabras_clave)
 
     # Verifica si se encontraron resultados
     if items:
