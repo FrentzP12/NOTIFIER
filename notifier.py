@@ -80,7 +80,9 @@ def send_email(subject, table_rows, recipients):
     </style>
     </head>
     <body>
-    <p>Resultados de la consulta:</p>
+    <p>A continuación se presentan las últimas contrataciones desde los últimos 15 días.</p>
+    <br>
+    <p>Para información mas detallada visitar: https://seacetlcom-production.up.railway.app </p>
     <table>
         <tr>
             <th>Comprador</th>
