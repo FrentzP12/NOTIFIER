@@ -100,9 +100,9 @@ async def main():
     """
     Función principal que coordina la consulta a la base de datos y el envío del correo.
     """
-    # Define el rango de fechas
-    fecha_inicio = datetime.strptime('2025-01-17', '%Y-%m-%d').date()
-    fecha_fin = fecha_inicio + timedelta(days=1)  # Día siguiente para cubrir todo el día 17
+    # Define el rango de fechas de 15 días atrás a hoy
+    fecha_fin = datetime.today().date()  # Fecha actual
+    fecha_inicio = fecha_fin - timedelta(days=15)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
@@ -118,12 +118,12 @@ async def main():
     if items:
         table_rows = generate_table_rows(items)
         send_email(
-            subject=f"Contrataciones relacionadas con tecnología ({fecha_inicio})",
+            subject=f"Contrataciones relacionadas con tecnología (últimos 15 días)",
             table_rows=table_rows,
             recipients=["frentz233@gmail.com"]
         )
     else:
-        print("No se encontraron resultados para las palabras clave indicadas.")
+        print("No se encontraron resultados para las palabras clave indicadas en el rango de los últimos 15 días.")
 
 if __name__ == "__main__":
     import asyncio
