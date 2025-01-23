@@ -62,7 +62,7 @@ def generate_table_rows(items):
         """
     return table_rows
 
-def send_email(subject, table_rows, recipients):
+def send_email(subject, table_rows, recipients, fecha_inicio, fecha_fin, total_items):
     """
     Envía un correo electrónico con una tabla HTML de resultados.
     """
@@ -71,6 +71,10 @@ def send_email(subject, table_rows, recipients):
     
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
+
+    # Formatear las fechas del rango
+    fecha_inicio_formateada = format_date(fecha_inicio)
+    fecha_fin_formateada = format_date(fecha_fin)
 
     body = f"""
     <html>
@@ -92,9 +96,10 @@ def send_email(subject, table_rows, recipients):
     </style>
     </head>
     <body>
-    <p>A continuación se presentan las últimas contrataciones desde los últimos 15 días.</p>
+    <p>A continuación se presentan las contrataciones realizadas entre el {fecha_inicio_formateada} y el {fecha_fin_formateada}.</p>
+    <p>Total de filas encontradas: {total_items}</p>
     <br>
-    <p>Para información mas detallada visitar: https://seacetlcom-production.up.railway.app </p>
+    <p>Para información más detallada, visitar: <a href="https://seacetlcom-production.up.railway.app">SEACE Contrataciones</a></p>
     <table>
         <tr>
             <th>Comprador</th>
@@ -129,13 +134,13 @@ async def main():
     """
     # Define el rango de fechas de 15 días atrás a hoy
     fecha_fin = datetime.today().date()  # Fecha actual
-    fecha_inicio = fecha_fin - timedelta(days=30)  # Hace 15 días
+    fecha_inicio = fecha_fin - timedelta(days=15)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
         "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
         "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
-        "DVB", "FM", "TV", "VHF"  # Incluye palabras clave adicionales
+        "DVB", "FM", "TV", "VHF", "agua"  # Incluye palabras clave adicionales
     ]
 
     # Realiza la consulta para todas las palabras clave
@@ -147,7 +152,10 @@ async def main():
         send_email(
             subject=f"Contrataciones relacionadas con tecnología y otros (últimos 15 días)",
             table_rows=table_rows,
-            recipients=["frentz233@gmail.com"]
+            recipients=["frentz233@gmail.com"],
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
+            total_items=len(items)
         )
     else:
         print("No se encontraron resultados para las palabras clave indicadas en el rango de los últimos 15 días.")

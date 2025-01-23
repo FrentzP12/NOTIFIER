@@ -2,7 +2,7 @@ name: Fetch and Notify Workflow
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # Ejecuta el workflow todos los días a las 7:00 UTC
+    - cron: '0 19 15,30 * *'  # Ejecuta el workflow todos los días a las 7:00 UTC
   workflow_dispatch:  # Permite ejecutar el workflow manualmente
 
 jobs:
