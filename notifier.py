@@ -12,16 +12,20 @@ async def fetch_items(fecha_inicio, fecha_fin, palabras_clave):
     dsn = os.getenv("DB_DSN")
     query = """
     SELECT * FROM buscar_items_multi_criterio(
-        NULL,
-        NULL,
         $1,
+        NULL,
+        NULL,
         $2,
         $3
     );
     """
     try:
         conn = await asyncpg.connect(dsn)
-        palabras_clave_filtro = '|'.join(palabras_clave)  # Palabras clave separadas por "OR" (expresión regular)
+        
+        # Concatenamos las palabras clave en un solo patrón con el operador |
+        palabras_clave_filtro = '|'.join(palabras_clave)
+        
+        # Ejecutamos la consulta
         rows = await conn.fetch(query, palabras_clave_filtro, fecha_inicio, fecha_fin)
         await conn.close()
         return rows
@@ -102,13 +106,13 @@ async def main():
     """
     # Define el rango de fechas de 15 días atrás a hoy
     fecha_fin = datetime.today().date()  # Fecha actual
-    fecha_inicio = fecha_fin - timedelta(days=20)  # Hace 15 días
+    fecha_inicio = fecha_fin - timedelta(days=15)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
         "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
         "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
-        "DVB", "FM", "TV", "VHF","agua"
+        "DVB", "FM", "TV", "VHF", "agua"  # Incluye palabras clave adicionales
     ]
 
     # Realiza la consulta
@@ -118,7 +122,7 @@ async def main():
     if items:
         table_rows = generate_table_rows(items)
         send_email(
-            subject=f"Contrataciones relacionadas con tecnología (últimos 15 días)",
+            subject=f"Contrataciones relacionadas con tecnología y otros (últimos 15 días)",
             table_rows=table_rows,
             recipients=["frentz233@gmail.com"]
         )
