@@ -21,8 +21,6 @@ async def fetch_items_por_palabra_clave(fecha_inicio, fecha_fin, palabra_clave):
     """
     try:
         conn = await asyncpg.connect(dsn)
-        
-        # Ejecutamos la consulta con una sola palabra clave
         rows = await conn.fetch(query, palabra_clave, fecha_inicio, fecha_fin)
         await conn.close()
         return rows
@@ -41,13 +39,27 @@ async def fetch_all_items(fecha_inicio, fecha_fin, palabras_clave):
         all_items.extend(items)  # Combina los resultados de todas las consultas
     return all_items
 
+def format_date(fecha):
+    """
+    Formatea una fecha al formato DD/MM/YY.
+    """
+    return fecha.strftime('%d/%m/%y') if fecha else "N/A"
+
 def generate_table_rows(items):
     """
     Genera filas en formato HTML para incluir en el correo.
     """
     table_rows = ""
     for item in items:
-        table_rows += f"<tr><td>{item['comprador']}</td><td>{item['item']}</td><td>{item['fecha_ingreso']}</td></tr>"
+        fecha_formateada = format_date(item['fecha_ingreso'])
+        table_rows += f"""
+        <tr>
+            <td>{item['comprador']}</td>
+            <td>{item['nomenclatura']}</td>
+            <td>{item['item']}</td>
+            <td>{fecha_formateada}</td>
+        </tr>
+        """
     return table_rows
 
 def send_email(subject, table_rows, recipients):
@@ -86,6 +98,7 @@ def send_email(subject, table_rows, recipients):
     <table>
         <tr>
             <th>Comprador</th>
+            <th>Nomenclatura</th>
             <th>Item</th>
             <th>Fecha de Ingreso</th>
         </tr>
@@ -116,13 +129,13 @@ async def main():
     """
     # Define el rango de fechas de 15 días atrás a hoy
     fecha_fin = datetime.today().date()  # Fecha actual
-    fecha_inicio = fecha_fin - timedelta(days=30)  # Hace 15 días
+    fecha_inicio = fecha_fin - timedelta(days=15)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
         "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
         "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
-        "DVB", "FM", "TV", "VHF"  # Incluye palabras clave adicionales
+        "DVB", "FM", "TV", "VHF", "agua"  # Incluye palabras clave adicionales
     ]
 
     # Realiza la consulta para todas las palabras clave
