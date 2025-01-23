@@ -152,7 +152,7 @@ async def main():
         send_email(
             subject=f"Contrataciones relacionadas con tecnología y otros (últimos 15 días)",
             table_rows=table_rows,
-            recipients=["frentz233@gmail.com"],
+            recipients=["u202113187@upc.edu.pe"],
             fecha_inicio=fecha_inicio,
             fecha_fin=fecha_fin,
             total_items=len(items)
