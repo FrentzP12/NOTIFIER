@@ -102,13 +102,13 @@ async def main():
     """
     # Define el rango de fechas de 15 días atrás a hoy
     fecha_fin = datetime.today().date()  # Fecha actual
-    fecha_inicio = fecha_fin - timedelta(days=40)  # Hace 15 días
+    fecha_inicio = fecha_fin - timedelta(days=20)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
         "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
         "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
-        "DVB", "FM", "TV", "VHF"
+        "DVB", "FM", "TV", "VHF","agua"
     ]
 
     # Realiza la consulta
