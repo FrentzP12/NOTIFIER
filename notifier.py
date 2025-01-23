@@ -140,7 +140,7 @@ async def main():
     palabras_clave = [
         "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
         "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
-        "DVB", "FM", "TV", "VHF", "agua"  # Incluye palabras clave adicionales
+        "DVB", "FM", "TV", "VHF"  # Incluye palabras clave adicionales
     ]
 
     # Realiza la consulta para todas las palabras clave
