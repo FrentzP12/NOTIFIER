@@ -5,20 +5,24 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 
-async def fetch_items_by_date(fecha_inicio, fecha_fin):
+async def fetch_items(fecha_inicio, fecha_fin, palabras_clave):
+    """
+    Realiza una consulta a la base de datos filtrando por fechas y palabras clave.
+    """
     dsn = os.getenv("DB_DSN")
     query = """
     SELECT * FROM buscar_items_multi_criterio(
         NULL,
         NULL,
-        NULL,
         $1,
-        $2
+        $2,
+        $3
     );
     """
     try:
         conn = await asyncpg.connect(dsn)
-        rows = await conn.fetch(query, fecha_inicio, fecha_fin)
+        palabras_clave_filtro = '|'.join(palabras_clave)  # Palabras clave separadas por "OR" (expresión regular)
+        rows = await conn.fetch(query, palabras_clave_filtro, fecha_inicio, fecha_fin)
         await conn.close()
         return rows
     except Exception as e:
@@ -26,19 +30,24 @@ async def fetch_items_by_date(fecha_inicio, fecha_fin):
         return []
 
 def generate_table_rows(items):
+    """
+    Genera filas en formato HTML para incluir en el correo.
+    """
     table_rows = ""
     for item in items:
         table_rows += f"<tr><td>{item['comprador']}</td><td>{item['item']}</td><td>{item['fecha_ingreso']}</td></tr>"
     return table_rows
 
 def send_email(subject, table_rows, recipients):
+    """
+    Envía un correo electrónico con una tabla HTML de resultados.
+    """
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASSWORD")
     
-    smtp_server = "smtp.gmail.com"  # Cambia esto si usas otro proveedor
-    smtp_port = 587  # Puerto SMTP estándar para TLS
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
 
-    # Crear el cuerpo del correo con formato HTML
     body = f"""
     <html>
     <head>
@@ -59,9 +68,7 @@ def send_email(subject, table_rows, recipients):
     </style>
     </head>
     <body>
-    <p>Nuevas entradas ingresadas para el día DD/MM/YY</p>
-    <br>
-    <p>Para información más precisa, revisar la página https://seacetlcom-production.up.railway.app <p>
+    <p>Resultados de la consulta:</p>
     <table>
         <tr>
             <th>Comprador</th>
@@ -90,19 +97,33 @@ def send_email(subject, table_rows, recipients):
         print(f"Error enviando correo: {e}")
 
 async def main():
+    """
+    Función principal que coordina la consulta a la base de datos y el envío del correo.
+    """
+    # Define el rango de fechas
     fecha_inicio = datetime.strptime('2025-01-17', '%Y-%m-%d').date()
     fecha_fin = fecha_inicio + timedelta(days=1)  # Día siguiente para cubrir todo el día 17
-    items = await fetch_items_by_date(fecha_inicio, fecha_fin)
+    
+    # Define las palabras clave
+    palabras_clave = [
+        "antena", "satelital", "satélite", "DTH", "telecomunicaciones", "torres",
+        "transmisores", "repetidores", "TVRO", "moduladores", "receptores",
+        "DVB", "FM", "TV", "VHF"
+    ]
 
+    # Realiza la consulta
+    items = await fetch_items(fecha_inicio, fecha_fin, palabras_clave)
+
+    # Verifica si se encontraron resultados
     if items:
         table_rows = generate_table_rows(items)
         send_email(
-            subject=f"Contrataciones del {fecha_inicio}",
+            subject=f"Contrataciones relacionadas con tecnología ({fecha_inicio})",
             table_rows=table_rows,
             recipients=["frentz233@gmail.com"]
         )
     else:
-        print("No se encontraron resultados para la fecha indicada.")
+        print("No se encontraron resultados para las palabras clave indicadas.")
 
 if __name__ == "__main__":
     import asyncio
