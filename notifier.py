@@ -134,7 +134,7 @@ async def main():
     """
     # Define el rango de fechas de 15 días atrás a hoy
     fecha_fin = datetime.today().date()  # Fecha actual
-    fecha_inicio = fecha_fin - timedelta(days=40)  # Hace 15 días
+    fecha_inicio = fecha_fin - timedelta(days=15)  # Hace 15 días
     
     # Define las palabras clave
     palabras_clave = [
@@ -152,7 +152,7 @@ async def main():
         send_email(
             subject=f"Contrataciones relacionadas con tecnología y otros (últimos 15 días)",
             table_rows=table_rows,
-            recipients=["u202113187@upc.edu.pe"],
+            recipients=["frentz233@gmail.com"],
             fecha_inicio=fecha_inicio,
             fecha_fin=fecha_fin,
             total_items=len(items)
