@@ -69,7 +69,7 @@ def send_email(subject, table_rows, recipients, fecha_inicio, fecha_fin, total_i
     sender_email = os.getenv("EMAIL_USER")
     sender_password = os.getenv("EMAIL_PASSWORD")
     
-    smtp_server = "smtp.gmail.com"
+    smtp_server = "smtp-relay.brevo.com"
     smtp_port = 587
 
     # Formatear las fechas del rango
